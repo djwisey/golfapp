@@ -1,86 +1,37 @@
-//
-//  ContentView.swift
-//  golfy
-//
-//  Created by Dylan Wiseman on 30/08/2025.
-//
-
 import SwiftUI
-import CoreData
 
 struct ContentView: View {
-    @Environment(\.managedObjectContext) private var viewContext
-
-    @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
-        animation: .default)
-    private var items: FetchedResults<Item>
+    @StateObject var locationManager = LocationManager()
+    @StateObject var scorecard = Scorecard()
+    @State private var course: Course?
 
     var body: some View {
-        NavigationView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp!, formatter: itemFormatter)")
-                    } label: {
-                        Text(item.timestamp!, formatter: itemFormatter)
-                    }
+        TabView {
+            if let course {
+                NavigationView {
+                    HolePagerView(course: course, locationManager: locationManager, scorecard: scorecard)
+                        .navigationTitle(course.name)
                 }
-                .onDelete(perform: deleteItems)
+                .tabItem { Label("Play", systemImage: "flag") }
+            } else {
+                Text("Loading course...")
+                    .task { await loadCourse() }
+                    .tabItem { Label("Play", systemImage: "flag") }
             }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-            Text("Select an item")
+
+            NavigationView { ScorecardView(scorecard: scorecard) }
+                .tabItem { Label("Scorecard", systemImage: "pencil") }
         }
     }
 
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(context: viewContext)
-            newItem.timestamp = Date()
-
-            do {
-                try viewContext.save()
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-            }
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            offsets.map { items[$0] }.forEach(viewContext.delete)
-
-            do {
-                try viewContext.save()
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-            }
+    private func loadCourse() async {
+        if let loaded = try? await CourseService.shared.loadCourse() {
+            course = loaded
+            scorecard.setupHoles(count: loaded.holes.count)
         }
     }
 }
 
-private let itemFormatter: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.dateStyle = .short
-    formatter.timeStyle = .medium
-    return formatter
-}()
-
 #Preview {
-    ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+    ContentView()
 }
