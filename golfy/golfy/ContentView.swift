@@ -1,9 +1,11 @@
 import SwiftUI
+import CoreLocation
 
 struct ContentView: View {
     @StateObject var locationManager = LocationManager()
     @StateObject var scorecard = Scorecard()
     @State private var course: OverpassResponse?
+    private let courseCenter = CLLocationCoordinate2D(latitude: 56.3417, longitude: -2.7955)
 
     var body: some View {
         TabView {
@@ -40,7 +42,7 @@ struct ContentView: View {
     }
 
     private func loadCourse(force: Bool = false) async {
-        if let loaded = try? await OverpassService.shared.loadCourse(forceReload: force) {
+        if let loaded = try? await OverpassService.shared.loadCourse(around: courseCenter, forceReload: force) {
             course = loaded
         }
     }

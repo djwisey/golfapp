@@ -1,26 +1,44 @@
 import SwiftUI
 
-/// Simple scorecard allowing strokes and putts per hole and showing totals
+/// View for editing a single hole's score
+private struct HolePageView: View {
+    @Binding var hole: HoleScore
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Text("Hole \(hole.id)")
+                .font(.title)
+            Stepper(value: $hole.strokes, in: 0...20) {
+                Text("Strokes: \(hole.strokes)")
+            }
+            Stepper(value: $hole.putts, in: 0...10) {
+                Text("Putts: \(hole.putts)")
+            }
+            Spacer()
+        }
+        .padding()
+    }
+}
+
+/// Simple scorecard allowing strokes and putts per hole with swipeable pages
 struct ScorecardView: View {
     @ObservedObject var scorecard: Scorecard
 
     var body: some View {
-        List {
+        TabView {
             ForEach($scorecard.holes) { $hole in
-                HStack {
-                    Text("Hole \(hole.id)")
-                    Spacer()
-                    Stepper(value: $hole.strokes, in: 0...20) { Text("Strokes: \(hole.strokes)") }
-                    Stepper(value: $hole.putts, in: 0...10) { Text("Putts: \(hole.putts)") }
-                }
+                HolePageView(hole: $hole)
             }
-            HStack {
+            VStack(spacing: 8) {
                 Text("Totals")
-                Spacer()
+                    .font(.title2)
                 Text("Strokes: \(scorecard.totalStrokes)")
                 Text("Putts: \(scorecard.totalPutts)")
+                Spacer()
             }
+            .padding()
         }
+        .tabViewStyle(.page)
         .navigationTitle("Scorecard")
         .toolbar { Button("Save") { scorecard.save() } }
     }
