@@ -7,16 +7,19 @@ struct ContentView: View {
 
     var body: some View {
         TabView {
+            NavigationView { StartRoundView() }
+                .tabItem { Label("Rounds", systemImage: "list.bullet") }
+
             if let course {
                 NavigationView {
                     HolePagerView(course: course, locationManager: locationManager, scorecard: scorecard)
                         .navigationTitle(course.name)
                 }
-                .tabItem { Label("Play", systemImage: "flag") }
+                .tabItem { Label("GPS", systemImage: "flag") }
             } else {
                 Text("Loading course...")
                     .task { await loadCourse() }
-                    .tabItem { Label("Play", systemImage: "flag") }
+                    .tabItem { Label("GPS", systemImage: "flag") }
             }
 
             NavigationView { ScorecardView(scorecard: scorecard) }
