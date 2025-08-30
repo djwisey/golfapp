@@ -18,7 +18,7 @@ struct CourseMapView: View {
         .mapStyle(.hybrid)
         .onChange(of: course) { _, _ in
             if let region = courseRegion {
-                bounds = MapCameraBounds(centerCoordinateBounds: region)
+                bounds = MapCameraBounds(centerCoordinateBounds: region, fallback: .automatic)
                 position = .region(region)
             }
         }
