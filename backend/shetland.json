@@ -1,0 +1,114 @@
+{
+  "name": "Shetland Golf Course",
+  "location": "Shetland, Scotland",
+  "holes": [
+    {
+      "id": 1,
+      "par": 4,
+      "features": [
+        {"id": 11, "type": "tee", "points": [{"lat": 60.1, "lon": -1.2}]},
+        {"id": 12, "type": "green", "points": [
+          {"lat": 60.1005, "lon": -1.199},
+          {"lat": 60.1007, "lon": -1.1992},
+          {"lat": 60.1006, "lon": -1.1988}
+        ]}
+      ]
+    },
+    {
+      "id": 2,
+      "par": 3,
+      "features": [
+        {"id": 21, "type": "tee", "points": [{"lat": 60.101, "lon": -1.201}]},
+        {"id": 22, "type": "green", "points": [
+          {"lat": 60.1015, "lon": -1.2005},
+          {"lat": 60.1017, "lon": -1.2007},
+          {"lat": 60.1016, "lon": -1.2003}
+        ]}
+      ]
+    },
+    {
+      "id": 3,
+      "par": 4,
+      "features": [
+        {"id": 31, "type": "tee", "points": [{"lat": 60.102, "lon": -1.202}]},
+        {"id": 32, "type": "green", "points": [
+          {"lat": 60.1025, "lon": -1.201},
+          {"lat": 60.1027, "lon": -1.2012},
+          {"lat": 60.1026, "lon": -1.2008}
+        ]}
+      ]
+    },
+    {
+      "id": 4,
+      "par": 5,
+      "features": [
+        {"id": 41, "type": "tee", "points": [{"lat": 60.103, "lon": -1.203}]},
+        {"id": 42, "type": "green", "points": [
+          {"lat": 60.1035, "lon": -1.202},
+          {"lat": 60.1037, "lon": -1.2022},
+          {"lat": 60.1036, "lon": -1.2018}
+        ]}
+      ]
+    },
+    {
+      "id": 5,
+      "par": 4,
+      "features": [
+        {"id": 51, "type": "tee", "points": [{"lat": 60.104, "lon": -1.204}]},
+        {"id": 52, "type": "green", "points": [
+          {"lat": 60.1045, "lon": -1.203},
+          {"lat": 60.1047, "lon": -1.2032},
+          {"lat": 60.1046, "lon": -1.2028}
+        ]}
+      ]
+    },
+    {
+      "id": 6,
+      "par": 3,
+      "features": [
+        {"id": 61, "type": "tee", "points": [{"lat": 60.105, "lon": -1.205}]},
+        {"id": 62, "type": "green", "points": [
+          {"lat": 60.1055, "lon": -1.2045},
+          {"lat": 60.1057, "lon": -1.2047},
+          {"lat": 60.1056, "lon": -1.2043}
+        ]}
+      ]
+    },
+    {
+      "id": 7,
+      "par": 4,
+      "features": [
+        {"id": 71, "type": "tee", "points": [{"lat": 60.106, "lon": -1.206}]},
+        {"id": 72, "type": "green", "points": [
+          {"lat": 60.1065, "lon": -1.205},
+          {"lat": 60.1067, "lon": -1.2052},
+          {"lat": 60.1066, "lon": -1.2048}
+        ]}
+      ]
+    },
+    {
+      "id": 8,
+      "par": 5,
+      "features": [
+        {"id": 81, "type": "tee", "points": [{"lat": 60.107, "lon": -1.207}]},
+        {"id": 82, "type": "green", "points": [
+          {"lat": 60.1075, "lon": -1.206},
+          {"lat": 60.1077, "lon": -1.2062},
+          {"lat": 60.1076, "lon": -1.2058}
+        ]}
+      ]
+    },
+    {
+      "id": 9,
+      "par": 4,
+      "features": [
+        {"id": 91, "type": "tee", "points": [{"lat": 60.108, "lon": -1.208}]},
+        {"id": 92, "type": "green", "points": [
+          {"lat": 60.1085, "lon": -1.207},
+          {"lat": 60.1087, "lon": -1.2072},
+          {"lat": 60.1086, "lon": -1.2068}
+        ]}
+      ]
+    }
+  ]
+}

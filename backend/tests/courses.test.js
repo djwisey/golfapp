@@ -14,6 +14,8 @@ describe('Courses API', () => {
     const res = await request(app).get('/courses/shetland');
     expect(res.status).toBe(200);
     expect(res.body.id).toBe('shetland');
+    expect(res.body.holes).toHaveLength(9);
+    expect(res.body.holes[0].features[0].type).toBe('tee');
   });
 
   test('returns 404 for unknown course', async () => {
