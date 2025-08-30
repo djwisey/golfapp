@@ -73,22 +73,33 @@ private struct HolePageView: View {
 
 struct ScorecardView: View {
     @ObservedObject var scorecard: Scorecard
+    @State private var index = 0
 
     var body: some View {
-        TabView {
-            ForEach($scorecard.holes) { $hole in
-                HolePageView(hole: $hole)
+        VStack {
+            if index < scorecard.holes.count {
+                HolePageView(hole: $scorecard.holes[index])
+            } else {
+                VStack(spacing: 8) {
+                    Text("Totals")
+                        .font(.title2)
+                    Text("Strokes: \(scorecard.totalStrokes)")
+                    Text("Putts: \(scorecard.totalPutts)")
+                    Spacer()
+                }
+                .padding()
             }
-            VStack(spacing: 8) {
-                Text("Totals")
-                    .font(.title2)
-                Text("Strokes: \(scorecard.totalStrokes)")
-                Text("Putts: \(scorecard.totalPutts)")
+            HStack {
+                Button("Back") { index -= 1 }
+                    .disabled(index == 0)
                 Spacer()
+                Button(index < scorecard.holes.count ? "Next" : "Done") {
+                    if index < scorecard.holes.count { index += 1 }
+                }
+                .disabled(index == scorecard.holes.count)
             }
             .padding()
         }
-        .tabViewStyle(.page)
         .navigationTitle("Scorecard")
         .toolbar { Button("Save") { scorecard.save() } }
     }
