@@ -1,49 +1,33 @@
 import SwiftUI
-import CoreLocation
 
 struct ContentView: View {
     @StateObject var locationManager = LocationManager()
     @StateObject var scorecard = Scorecard()
-    @State private var course: OverpassResponse?
-    private let courseCenter = CLLocationCoordinate2D(latitude: 56.3417, longitude: -2.7955)
+    @State private var course: Course?
 
     var body: some View {
         TabView {
-            NavigationView {
-                VStack {
-                    CourseMapView(locationManager: locationManager, course: $course)
-                    if let yards = firstGreenYardages {
-                        HStack {
-                            Text(String(format: "F %.0f yd", yards.front))
-                            Text(String(format: "C %.0f yd", yards.center))
-                            Text(String(format: "B %.0f yd", yards.back))
-                        }
-                        .padding()
-                    }
+            if let course {
+                NavigationView {
+                    HolePagerView(course: course, locationManager: locationManager, scorecard: scorecard)
+                        .navigationTitle(course.name)
                 }
-                .navigationTitle("Map")
-                .task { await loadCourse() }
-                .toolbar { Button("Reload") { Task { await loadCourse(force: true) } } }
+                .tabItem { Label("Play", systemImage: "flag") }
+            } else {
+                Text("Loading course...")
+                    .task { await loadCourse() }
+                    .tabItem { Label("Play", systemImage: "flag") }
             }
-            .tabItem { Label("Map", systemImage: "map") }
-
-            NavigationView { TargetsListView(locationManager: locationManager, course: course) }
-                .tabItem { Label("Targets", systemImage: "list.bullet") }
 
             NavigationView { ScorecardView(scorecard: scorecard) }
                 .tabItem { Label("Scorecard", systemImage: "pencil") }
         }
     }
 
-    private var firstGreenYardages: (front: Double, center: Double, back: Double)? {
-        guard let loc = locationManager.location else { return nil }
-        guard let green = course?.elements.first(where: { $0.tags?["golf"] == "green" }) else { return nil }
-        return green.yardages(from: loc.coordinate)
-    }
-
-    private func loadCourse(force: Bool = false) async {
-        if let loaded = try? await OverpassService.shared.loadCourse(around: courseCenter, forceReload: force) {
+    private func loadCourse() async {
+        if let loaded = try? await CourseService.shared.loadCourse() {
             course = loaded
+            scorecard.setupHoles(count: loaded.holes.count)
         }
     }
 }

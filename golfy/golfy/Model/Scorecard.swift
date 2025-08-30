@@ -14,10 +14,17 @@ class Scorecard: ObservableObject {
     init() {
         let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         fileURL = docs.appendingPathComponent("scorecard.json")
-        if let data = try? Data(contentsOf: fileURL), let decoded = try? JSONDecoder().decode([HoleScore].self, from: data) {
+        if let data = try? Data(contentsOf: fileURL),
+           let decoded = try? JSONDecoder().decode([HoleScore].self, from: data) {
             holes = decoded
         } else {
-            holes = (1...18).map { HoleScore(id: $0, strokes: 0, putts: 0) }
+            holes = []
+        }
+    }
+
+    func setupHoles(count: Int) {
+        if holes.count != count {
+            holes = (1...count).map { HoleScore(id: $0, strokes: 0, putts: 0) }
         }
     }
 
@@ -27,6 +34,6 @@ class Scorecard: ObservableObject {
         }
     }
 
-    var totalStrokes: Int { holes.map { $0.strokes }.reduce(0,+) }
-    var totalPutts: Int { holes.map { $0.putts }.reduce(0,+) }
+    var totalStrokes: Int { holes.map { $0.strokes }.reduce(0, +) }
+    var totalPutts: Int { holes.map { $0.putts }.reduce(0, +) }
 }

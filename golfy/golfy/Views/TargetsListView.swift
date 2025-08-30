@@ -1,17 +1,16 @@
 import SwiftUI
 import CoreLocation
 
-/// Lists targets (tees, greens, bunkers, water, fairways) with live yardages
 struct TargetsListView: View {
     @ObservedObject var locationManager: LocationManager
-    var course: OverpassResponse?
+    let hole: Hole
 
     var body: some View {
-        List(targets) { element in
+        List(targets) { feature in
             HStack {
-                Text(element.tags?["golf"] ?? element.tags?["natural"] ?? "Target")
+                Text(feature.type.displayName)
                 Spacer()
-                if let yards = yardage(to: element) {
+                if let yards = yardage(to: feature) {
                     Text(String(format: "%.0f yd", yards))
                 }
             }
@@ -19,16 +18,13 @@ struct TargetsListView: View {
         .navigationTitle("Targets")
     }
 
-    private var targets: [OverpassElement] {
-        course?.elements.filter { element in
-            guard let tag = element.tags?["golf"] ?? element.tags?["natural"] else { return false }
-            return ["tee", "green", "bunker", "fairway", "water", "water_hazard"].contains(tag)
-        } ?? []
+    private var targets: [CourseFeature] {
+        hole.features.filter { $0.type != .tee && $0.type != .green }
     }
 
-    private func yardage(to element: OverpassElement) -> Double? {
+    private func yardage(to feature: CourseFeature) -> Double? {
         guard let user = locationManager.location else { return nil }
-        guard let coord = element.centroid else { return nil }
+        let coord = feature.centroid
         let loc = CLLocation(latitude: coord.latitude, longitude: coord.longitude)
         return user.distanceYards(to: loc)
     }
