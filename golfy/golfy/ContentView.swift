@@ -17,13 +17,17 @@ struct ContentView: View {
                 }
                 .tabItem { Label("GPS", systemImage: "flag") }
             } else {
-                Text("Loading course...")
-                    .task { await loadCourse() }
+                ProgressView("Loading course...")
                     .tabItem { Label("GPS", systemImage: "flag") }
             }
 
             NavigationView { ScorecardView(scorecard: scorecard) }
                 .tabItem { Label("Scorecard", systemImage: "pencil") }
+        }
+        .task {
+            if course == nil {
+                await loadCourse()
+            }
         }
     }
 
