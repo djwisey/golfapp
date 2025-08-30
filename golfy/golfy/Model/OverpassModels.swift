@@ -2,13 +2,13 @@ import Foundation
 import CoreLocation
 
 /// Geometry point used by Overpass API for ways and relations
-struct GeometryPoint: Codable {
+struct GeometryPoint: Codable, Equatable {
     let lat: Double
     let lon: Double
 }
 
 /// Element returned from the Overpass API. Elements can be nodes or ways.
-struct OverpassElement: Codable, Identifiable {
+struct OverpassElement: Codable, Identifiable, Equatable {
     let id: Int
     let type: String
     let lat: Double?
@@ -44,7 +44,7 @@ struct OverpassElement: Codable, Identifiable {
     }
 }
 
-struct OverpassResponse: Codable {
+struct OverpassResponse: Codable, Equatable {
     let elements: [OverpassElement]
 }
 

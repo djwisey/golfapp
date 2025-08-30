@@ -5,7 +5,7 @@ import MapKit
 struct CourseMapView: View {
     @ObservedObject var locationManager: LocationManager
     @Binding var course: OverpassResponse?
-    @State private var position: MapCameraPosition = .userLocation
+    @State private var position: MapCameraPosition = .userLocation(followsHeading: false)
     @State private var bounds: MapCameraBounds?
 
     var body: some View {
@@ -18,7 +18,7 @@ struct CourseMapView: View {
         .mapStyle(.hybrid)
         .onChange(of: course) { _, _ in
             if let region = courseRegion {
-                bounds = MapCameraBounds(centerCoordinateRegion: region)
+                bounds = MapCameraBounds(centerCoordinateBounds: region)
                 position = .region(region)
             }
         }
