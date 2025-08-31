@@ -4,7 +4,7 @@ import CoreLocation
 private struct HolePage: View {
     let hole: Hole
     @ObservedObject var locationManager: LocationManager
-    @Binding var score: HoleScore
+    @ObservedObject var scorecard: Scorecard
 
     var body: some View {
         VStack(spacing: 16) {
@@ -19,16 +19,16 @@ private struct HolePage: View {
                     Text(String(format: "B %.0f yd", yards.back))
                 }
             }
-            Stepper(value: $score.strokes, in: 0...20) {
-                Text("Strokes: \(score.strokes)")
-            }
-            Stepper(value: $score.putts, in: 0...10) {
-                Text("Putts: \(score.putts)")
-            }
-            NavigationLink("Targets") {
-                TargetsListView(locationManager: locationManager, hole: hole)
-            }
             Spacer()
+            HStack {
+                Button("Add Shot") {}
+                Spacer()
+                NavigationLink("Scorecard") {
+                    ScorecardView(scorecard: scorecard)
+                }
+                Spacer()
+                Button("Move Pin") {}
+            }
         }
         .padding()
     }
@@ -50,7 +50,7 @@ struct HolePagerView: View {
         VStack {
             HolePage(hole: course.holes[index],
                      locationManager: locationManager,
-                     score: binding(for: course.holes[index].id))
+                     scorecard: scorecard)
             HStack {
                 Button("Back") { index -= 1 }
                     .disabled(index == 0)
@@ -60,10 +60,5 @@ struct HolePagerView: View {
             }
             .padding(.horizontal)
         }
-    }
-
-    private func binding(for holeID: Int) -> Binding<HoleScore> {
-        let idx = scorecard.holes.firstIndex { $0.id == holeID }!
-        return $scorecard.holes[idx]
     }
 }

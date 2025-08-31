@@ -8,7 +8,10 @@ struct ContentView: View {
     var body: some View {
         TabView {
             NavigationView { StartRoundView() }
-                .tabItem { Label("Rounds", systemImage: "list.bullet") }
+                .tabItem { Label("Home", systemImage: "house") }
+
+            NavigationView { CourseListView() }
+                .tabItem { Label("Courses", systemImage: "mappin.circle") }
 
             if let course {
                 NavigationView {
@@ -21,8 +24,11 @@ struct ContentView: View {
                     .tabItem { Label("GPS", systemImage: "flag") }
             }
 
-            NavigationView { ScorecardView(scorecard: scorecard) }
-                .tabItem { Label("Scorecard", systemImage: "pencil") }
+            NavigationView { HistoryView() }
+                .tabItem { Label("History", systemImage: "clock") }
+
+            NavigationView { ProfileView() }
+                .tabItem { Label("Profile", systemImage: "person.crop.circle") }
         }
         .task {
             if course == nil {
