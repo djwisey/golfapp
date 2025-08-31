@@ -1,46 +1,42 @@
 import SwiftUI
-
-struct CourseListItem: Identifiable {
-    let id = UUID()
-    let name: String
-}
+import CoreLocation
 
 struct CourseListView: View {
+    @StateObject private var locationManager = LocationManager()
     @State private var search = ""
-    private let nearby: [CourseListItem] = [
-        .init(name: "Green Valley Golf Club"),
-        .init(name: "River Ridge Golf Club"),
-    ]
-    private let recent: [CourseListItem] = [
-        .init(name: "Sunvalley Golf Course"),
-    ]
+    @State private var courses: [CourseSummary] = []
 
     var body: some View {
         List {
-            Section("Nearby") {
-                ForEach(filter(nearby)) { item in
-                    CourseRow(item: item)
-                }
-            }
-            Section("Recent") {
-                ForEach(filter(recent)) { item in
-                    CourseRow(item: item)
-                }
+            ForEach(filter(courses)) { item in
+                CourseRow(item: item)
             }
         }
         .listStyle(.insetGrouped)
         .navigationTitle("Course")
         .searchable(text: $search)
+        .task {
+            await loadCourses()
+        }
     }
 
-    private func filter(_ items: [CourseListItem]) -> [CourseListItem] {
+    private func loadCourses() async {
+        guard let location = locationManager.location?.coordinate else { return }
+        do {
+            courses = try await CourseService.shared.searchCourses(near: location)
+        } catch {
+            print("Failed to fetch courses: \(error)")
+        }
+    }
+
+    private func filter(_ items: [CourseSummary]) -> [CourseSummary] {
         if search.isEmpty { return items }
         return items.filter { $0.name.localizedCaseInsensitiveContains(search) }
     }
 }
 
 struct CourseRow: View {
-    let item: CourseListItem
+    let item: CourseSummary
     var body: some View {
         HStack {
             RoundedRectangle(cornerRadius: 8)
@@ -55,3 +51,4 @@ struct CourseRow: View {
 #Preview {
     NavigationView { CourseListView() }
 }
+
