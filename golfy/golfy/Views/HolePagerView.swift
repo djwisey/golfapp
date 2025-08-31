@@ -4,13 +4,13 @@ import CoreLocation
 private struct HolePage: View {
     let hole: Hole
     @ObservedObject var locationManager: LocationManager
-    @Binding var score: HoleScore
+    @ObservedObject var scorecard: Scorecard
 
     var body: some View {
         VStack(spacing: 16) {
             Text("Hole \(hole.id) - Par \(hole.par)")
                 .font(.title2)
-            HoleMapView(locationManager: locationManager, hole: hole)
+            HoleCartoonView(hole: hole)
                 .frame(height: 250)
             if let yards = yardages {
                 HStack {
@@ -19,16 +19,16 @@ private struct HolePage: View {
                     Text(String(format: "B %.0f yd", yards.back))
                 }
             }
-            Stepper(value: $score.strokes, in: 0...20) {
-                Text("Strokes: \(score.strokes)")
-            }
-            Stepper(value: $score.putts, in: 0...10) {
-                Text("Putts: \(score.putts)")
-            }
-            NavigationLink("Targets") {
-                TargetsListView(locationManager: locationManager, hole: hole)
-            }
             Spacer()
+            HStack {
+                Button("Add Shot") {}
+                Spacer()
+                NavigationLink("Scorecard") {
+                    ScorecardView(scorecard: scorecard)
+                }
+                Spacer()
+                Button("Move Pin") {}
+            }
         }
         .padding()
     }
@@ -44,20 +44,21 @@ struct HolePagerView: View {
     let course: Course
     @ObservedObject var locationManager: LocationManager
     @ObservedObject var scorecard: Scorecard
+    @State private var index = 0
 
     var body: some View {
-        TabView {
-            ForEach(course.holes) { hole in
-                HolePage(hole: hole,
-                         locationManager: locationManager,
-                         score: binding(for: hole.id))
+        VStack {
+            HolePage(hole: course.holes[index],
+                     locationManager: locationManager,
+                     scorecard: scorecard)
+            HStack {
+                Button("Back") { index -= 1 }
+                    .disabled(index == 0)
+                Spacer()
+                Button("Next") { index += 1 }
+                    .disabled(index == course.holes.count - 1)
             }
+            .padding(.horizontal)
         }
-        .tabViewStyle(.page)
-    }
-
-    private func binding(for holeID: Int) -> Binding<HoleScore> {
-        let index = scorecard.holes.firstIndex { $0.id == holeID }!
-        return $scorecard.holes[index]
     }
 }

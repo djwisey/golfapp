@@ -7,20 +7,33 @@ struct ContentView: View {
 
     var body: some View {
         TabView {
+            NavigationView { StartRoundView() }
+                .tabItem { Label("Home", systemImage: "house") }
+
+            NavigationView { CourseListView() }
+                .tabItem { Label("Courses", systemImage: "mappin.circle") }
+
             if let course {
                 NavigationView {
                     HolePagerView(course: course, locationManager: locationManager, scorecard: scorecard)
                         .navigationTitle(course.name)
                 }
-                .tabItem { Label("Play", systemImage: "flag") }
+                .tabItem { Label("GPS", systemImage: "flag") }
             } else {
-                Text("Loading course...")
-                    .task { await loadCourse() }
-                    .tabItem { Label("Play", systemImage: "flag") }
+                ProgressView("Loading course...")
+                    .tabItem { Label("GPS", systemImage: "flag") }
             }
 
-            NavigationView { ScorecardView(scorecard: scorecard) }
-                .tabItem { Label("Scorecard", systemImage: "pencil") }
+            NavigationView { HistoryView() }
+                .tabItem { Label("History", systemImage: "clock") }
+
+            NavigationView { ProfileView() }
+                .tabItem { Label("Profile", systemImage: "person.crop.circle") }
+        }
+        .task {
+            if course == nil {
+                await loadCourse()
+            }
         }
     }
 
