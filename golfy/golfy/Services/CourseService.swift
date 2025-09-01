@@ -1,4 +1,5 @@
 import Foundation
+import CoreLocation
 
 private struct OSMResponse: Codable {
     let elements: [OSMElement]
@@ -70,6 +71,35 @@ actor CourseService {
             try data.write(to: cacheURL, options: .atomic)
         }
         return try decodeOSM(data)
+    }
+
+    // MARK: - Remote search
+
+    /// Search for golf courses near a location using the public Overpass API.
+    /// - Parameters:
+    ///   - location: Center point for the search.
+    ///   - radius: Search radius in meters.
+    /// - Returns: An array of course summaries discovered within the radius.
+    func searchCourses(near location: CLLocationCoordinate2D, radius: Int = 10000) async throws -> [CourseSummary] {
+        let query = """
+        [out:json];
+        node["golf"="course"](around:\(radius),\(location.latitude),\(location.longitude));
+        out center;
+        """
+
+        let url = URL(string: "https://overpass-api.de/api/interpreter")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.httpBody = "data=\(query)".data(using: .utf8)
+
+        let (data, _) = try await URLSession.shared.data(for: request)
+        let response = try JSONDecoder().decode(OSMResponse.self, from: data)
+
+        return response.elements.compactMap { element in
+            guard let coord = element.coordinate else { return nil }
+            let name = element.tags?["name"] ?? "Course \(element.id)"
+            return CourseSummary(id: element.id, name: name, coordinate: coord)
+        }
     }
 
     private func decodeOSM(_ data: Data) throws -> Course {
