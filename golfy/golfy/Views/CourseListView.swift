@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 struct CourseListItem: Identifiable {
     let id = UUID()
@@ -6,11 +7,9 @@ struct CourseListItem: Identifiable {
 }
 
 struct CourseListView: View {
+    @ObservedObject var locationManager: LocationManager
     @State private var search = ""
-    private let nearby: [CourseListItem] = [
-        .init(name: "Green Valley Golf Club"),
-        .init(name: "River Ridge Golf Club"),
-    ]
+    @State private var nearby: [CourseListItem] = []
     private let recent: [CourseListItem] = [
         .init(name: "Sunvalley Golf Course"),
     ]
@@ -31,11 +30,26 @@ struct CourseListView: View {
         .listStyle(.insetGrouped)
         .navigationTitle("Course")
         .searchable(text: $search)
+        .onReceive(locationManager.$location
+            .compactMap { $0 }
+            .debounce(for: .seconds(1), scheduler: RunLoop.main)) { _ in
+                Task { await loadCourses() }
+            }
     }
 
     private func filter(_ items: [CourseListItem]) -> [CourseListItem] {
         if search.isEmpty { return items }
         return items.filter { $0.name.localizedCaseInsensitiveContains(search) }
+    }
+
+    @MainActor
+    private func loadCourses() async {
+        // Placeholder implementation: load static courses.
+        // Replace with API call using locationManager.location if needed.
+        nearby = [
+            .init(name: "Green Valley Golf Club"),
+            .init(name: "River Ridge Golf Club")
+        ]
     }
 }
 
@@ -53,5 +67,5 @@ struct CourseRow: View {
 }
 
 #Preview {
-    NavigationView { CourseListView() }
+    NavigationView { CourseListView(locationManager: LocationManager()) }
 }

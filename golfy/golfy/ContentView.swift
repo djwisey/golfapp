@@ -10,7 +10,7 @@ struct ContentView: View {
             NavigationView { StartRoundView() }
                 .tabItem { Label("Home", systemImage: "house") }
 
-            NavigationView { CourseListView() }
+            NavigationView { CourseListView(locationManager: locationManager) }
                 .tabItem { Label("Courses", systemImage: "mappin.circle") }
 
             if let course {
