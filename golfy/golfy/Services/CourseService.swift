@@ -33,10 +33,40 @@ actor CourseService {
         if !forceReload, let cached = try? Data(contentsOf: cacheURL) {
             data = cached
         } else {
-            guard let bundleURL = Bundle.main.url(forResource: "course", withExtension: "json") else {
-                throw NSError(domain: "CourseService", code: 1, userInfo: [NSLocalizedDescriptionKey: "Missing course.json in bundle"])
+            // Bounding box around the bundled example course
+            let south = 60.165
+            let north = 60.171
+            let west = -1.227
+            let east = -1.215
+
+            let query = """
+            [out:json][timeout:25];
+            (
+              node["golf"="tee"](\(south),\(west),\(north),\(east));
+              node["golf"="green"](\(south),\(west),\(north),\(east));
+              node["golf"="bunker"](\(south),\(west),\(north),\(east));
+              way["golf"="fairway"](\(south),\(west),\(north),\(east));
+              way["natural"="water"]["golf"="water_hazard"](\(south),\(west),\(north),\(east));
+            );
+            out body;
+            >;
+            out skel qt;
+            """
+
+            var components = URLComponents()
+            components.queryItems = [URLQueryItem(name: "data", value: query)]
+
+            var request = URLRequest(url: URL(string: "https://overpass-api.de/api/interpreter")!)
+            request.httpMethod = "POST"
+            request.httpBody = components.percentEncodedQuery?.data(using: .utf8)
+            request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+
+            let (remoteData, response) = try await URLSession.shared.data(for: request)
+            guard let httpResponse = response as? HTTPURLResponse,
+                  (200..<300).contains(httpResponse.statusCode) else {
+                throw URLError(.badServerResponse)
             }
-            data = try Data(contentsOf: bundleURL)
+            data = remoteData
             try data.write(to: cacheURL, options: .atomic)
         }
         return try decodeOSM(data)
